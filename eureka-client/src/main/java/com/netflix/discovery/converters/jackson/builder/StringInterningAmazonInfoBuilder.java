@@ -88,7 +88,7 @@ public class StringInterningAmazonInfoBuilder extends JsonDeserializer<AmazonInf
     public AmazonInfo deserialize(JsonParser jp, DeserializationContext context)
             throws IOException {
         Map<String,String> metadata = new CompactHashMap<>();
-        DeserializerStringCache intern = DeserializerStringCache.from(context);        
+        DeserializerStringCache intern = DeserializerStringCache.from(context);
         
         JsonToken jsonToken;
         while((jsonToken = jp.nextToken()) != JsonToken.END_OBJECT){

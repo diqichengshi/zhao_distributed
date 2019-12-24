@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.zhaojuan</groupId>
-    <artifactId>eureka-core</artifactId>
+    <artifactId>zuul-core</artifactId>
     <version>1.0.0</version>
 
     <properties>
@@ -16,15 +16,19 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.zhaojuan</groupId>
-            <artifactId>eureka-client</artifactId>
-            <version>1.0.0</version>
+            <groupId>com.netflix.servo</groupId>
+            <artifactId>servo-core</artifactId>
+            <version>0.10.1</version>
         </dependency>
         <dependency>
             <groupId>com.netflix.archaius</groupId>
             <artifactId>archaius-core</artifactId>
             <version>0.6.5</version>
-            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.netflix.netflix-commons</groupId>
+            <artifactId>netflix-commons-util</artifactId>
+            <version>0.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -32,9 +36,9 @@
             <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk</artifactId>
-            <version>1.11.698</version>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.31.Final</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -42,8 +46,27 @@
             <version>1.7.25</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.10.19</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <version>2.4.13</version>
+        </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
