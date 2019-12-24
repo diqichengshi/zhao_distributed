@@ -6,7 +6,7 @@
 
     <groupId>com.zhaojuan</groupId>
     <artifactId>eureka-client</artifactId>
-    <version>1.0.0</version>
+    <version>1.7.2</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -26,7 +26,7 @@
             <version>0.3.0</version>
         </dependency>
         <dependency>
-            <groupId>com.netflix.archaius</groupId>
+            <groupId>com.zhaojuan</groupId>
             <artifactId>archaius-core</artifactId>
             <version>0.7.4</version>
         </dependency>
