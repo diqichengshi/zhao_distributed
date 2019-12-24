@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -116,17 +117,15 @@ public class EndpointUtils {
                 }
             }
             if (zoneFound) {
-                logger.debug("The zone index from the list {} that matches the instance zone {} is {}",
-                        zones, instanceZone, zoneIndex);
+                Object[] args = {zones, instanceZone, zoneIndex};
+                logger.debug("The zone index from the list {} that matches the instance zone {} is {}", args);
                 break;
             }
             zoneIndex++;
         }
         if (zoneIndex >= zones.size()) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("No match for the zone {} in the list of available zones {}",
-                        instanceZone, zones.toArray());
-            }
+            logger.warn("No match for the zone {} in the list of available zones {}",
+                    instanceZone, Arrays.toString(zones.toArray()));
         } else {
             // Rearrange the zones with the instance zone first
             for (int i = 0; i < zoneIndex; i++) {
@@ -140,28 +139,16 @@ public class EndpointUtils {
         for (String zone : zones) {
             for (String zoneCname : zoneDnsNamesMap.get(zone)) {
                 List<String> ec2Urls = new ArrayList<String>(getEC2DiscoveryUrlsFromZone(zoneCname, DiscoveryUrlType.CNAME));
-                // Rearrange the list to distribute the load in case of multiple servers
+                // Rearrange the list to distribute the load in case of
+                // multiple servers
                 if (ec2Urls.size() > 1) {
                     randomizer.randomize(ec2Urls);
                 }
                 for (String ec2Url : ec2Urls) {
-                    StringBuilder sb = new StringBuilder()
-                            .append("http://")
-                            .append(ec2Url)
-                            .append(":")
-                            .append(clientConfig.getEurekaServerPort());
-                    if (clientConfig.getEurekaServerURLContext() != null) {
-                        if (!clientConfig.getEurekaServerURLContext().startsWith("/")) {
-                            sb.append("/");
-                        }
-                        sb.append(clientConfig.getEurekaServerURLContext());
-                        if (!clientConfig.getEurekaServerURLContext().endsWith("/")) {
-                            sb.append("/");
-                        }
-                    } else {
-                        sb.append("/");
-                    }
-                    String serviceUrl = sb.toString();
+                    String serviceUrl = "http://" + ec2Url + ":"
+                            + clientConfig.getEurekaServerPort()
+                            + "/" + clientConfig.getEurekaServerURLContext()
+                            + "/";
                     logger.debug("The EC2 url is {}", serviceUrl);
                     serviceUrls.add(serviceUrl);
                 }
@@ -172,10 +159,8 @@ public class EndpointUtils {
         randomizer.randomize(serviceUrls);
         serviceUrls.add(0, primaryServiceUrl);
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("This client will talk to the following serviceUrls in order : {} ",
-                    (Object) serviceUrls.toArray());
-        }
+        logger.debug("This client will talk to the following serviceUrls in order : {} ",
+                Arrays.toString(serviceUrls.toArray()));
         return serviceUrls;
     }
 
@@ -195,7 +180,7 @@ public class EndpointUtils {
             availZones = new String[1];
             availZones[0] = DEFAULT_ZONE;
         }
-        logger.debug("The availability zone for the given region {} are {}", region, availZones);
+        logger.debug("The availability zone for the given region {} are {}", region, Arrays.toString(availZones));
         int myZoneOffset = getZoneOffset(instanceZone, preferSameZone, availZones);
 
         List<String> serviceUrls = clientConfig.getEurekaServerServiceUrls(availZones[myZoneOffset]);
@@ -237,7 +222,7 @@ public class EndpointUtils {
             availZones = new String[1];
             availZones[0] = DEFAULT_ZONE;
         }
-        logger.debug("The availability zone for the given region {} are {}", region, availZones);
+        logger.debug("The availability zone for the given region {} are {}", region, Arrays.toString(availZones));
         int myZoneOffset = getZoneOffset(instanceZone, preferSameZone, availZones);
 
         String zone = availZones[myZoneOffset];
@@ -377,7 +362,7 @@ public class EndpointUtils {
             }
         }
         logger.warn("DISCOVERY: Could not pick a zone based on preferred zone settings. My zone - {}," +
-                " preferSameZone - {}. Defaulting to {}", myZone, preferSameZone, availZones[0]);
+                " preferSameZone- {}. Defaulting to " + availZones[0], myZone, preferSameZone);
 
         return 0;
     }

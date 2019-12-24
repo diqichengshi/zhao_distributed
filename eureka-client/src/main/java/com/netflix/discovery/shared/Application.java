@@ -23,8 +23,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -54,8 +52,6 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
 @XStreamAlias("application")
 @JsonRootName("application")
 public class Application {
-    
-    private static Random shuffleRandom = new Random();
 
     @Override
     public String toString() {
@@ -72,19 +68,19 @@ public class Application {
     @XStreamImplicit
     private final Set<InstanceInfo> instances;
 
-    private final AtomicReference<List<InstanceInfo>> shuffledInstances;
+    private AtomicReference<List<InstanceInfo>> shuffledInstances = new AtomicReference<List<InstanceInfo>>();
 
-    private final Map<String, InstanceInfo> instancesMap;
+    private Map<String, InstanceInfo> instancesMap;
 
     public Application() {
         instances = new LinkedHashSet<InstanceInfo>();
         instancesMap = new ConcurrentHashMap<String, InstanceInfo>();
-        shuffledInstances = new AtomicReference<List<InstanceInfo>>();
     }
 
     public Application(String name) {
-        this();
         this.name = StringCache.intern(name);
+        instancesMap = new ConcurrentHashMap<String, InstanceInfo>();
+        instances = new LinkedHashSet<InstanceInfo>();
     }
 
     @JsonCreator
@@ -135,7 +131,11 @@ public class Application {
      */
     @JsonProperty("instance")
     public List<InstanceInfo> getInstances() {
-        return Optional.ofNullable(shuffledInstances.get()).orElseGet(this::getInstancesAsIsFromEureka);
+        if (this.shuffledInstances.get() == null) {
+            return this.getInstancesAsIsFromEureka();
+        } else {
+            return this.shuffledInstances.get();
+        }
     }
 
     /**
@@ -216,15 +216,14 @@ public class Application {
         synchronized (instances) {
             instanceInfoList = new ArrayList<InstanceInfo>(instances);
         }
-        boolean remoteIndexingActive = indexByRemoteRegions && null != instanceRegionChecker && null != clientConfig
-                && null != remoteRegionsRegistry;
-        if (remoteIndexingActive || filterUpInstances) {
+        if (indexByRemoteRegions || filterUpInstances) {
             Iterator<InstanceInfo> it = instanceInfoList.iterator();
             while (it.hasNext()) {
                 InstanceInfo instanceInfo = it.next();
-                if (filterUpInstances && InstanceStatus.UP != instanceInfo.getStatus()) {
+                if (filterUpInstances && !InstanceStatus.UP.equals(instanceInfo.getStatus())) {
                     it.remove();
-                } else if (remoteIndexingActive) {
+                } else if (indexByRemoteRegions && null != instanceRegionChecker && null != clientConfig
+                        && null != remoteRegionsRegistry) {
                     String instanceRegion = instanceRegionChecker.getInstanceRegion(instanceInfo);
                     if (!instanceRegionChecker.isLocalRegion(instanceRegion)) {
                         Applications appsForRemoteRegion = remoteRegionsRegistry.get(instanceRegion);
@@ -248,7 +247,7 @@ public class Application {
             }
 
         }
-        Collections.shuffle(instanceInfoList, shuffleRandom);
+        Collections.shuffle(instanceInfoList);
         this.shuffledInstances.set(instanceInfoList);
     }
 

@@ -59,8 +59,8 @@ public class EurekaConfigBasedInstanceInfoProvider implements Provider<InstanceI
 
             // set the appropriate id for the InstanceInfo, falling back to datacenter Id if applicable, else hostname
             String instanceId = config.getInstanceId();
+            DataCenterInfo dataCenterInfo = config.getDataCenterInfo();
             if (instanceId == null || instanceId.isEmpty()) {
-                DataCenterInfo dataCenterInfo = config.getDataCenterInfo();
                 if (dataCenterInfo instanceof UniqueIdentifier) {
                     instanceId = ((UniqueIdentifier) dataCenterInfo).getId();
                 } else {
@@ -104,7 +104,7 @@ public class EurekaConfigBasedInstanceInfoProvider implements Provider<InstanceI
             // Start off with the STARTING state to avoid traffic
             if (!config.isInstanceEnabledOnit()) {
                 InstanceStatus initialStatus = InstanceStatus.STARTING;
-                LOG.info("Setting initial instance status as: {}", initialStatus);
+                LOG.info("Setting initial instance status as: " + initialStatus);
                 builder.setStatus(initialStatus);
             } else {
                 LOG.info("Setting initial instance status as: {}. This may be too early for the instance to advertise "
@@ -116,10 +116,7 @@ public class EurekaConfigBasedInstanceInfoProvider implements Provider<InstanceI
             for (Map.Entry<String, String> mapEntry : config.getMetadataMap().entrySet()) {
                 String key = mapEntry.getKey();
                 String value = mapEntry.getValue();
-                // only add the metadata if the value is present
-                if (value != null && !value.isEmpty()) {
-                    builder.add(key, value);
-                }
+                builder.add(key, value);
             }
 
             instanceInfo = builder.build();

@@ -109,7 +109,7 @@ public class ReloadingClusterResolver<T extends EurekaEndpoint> implements Clust
             } catch (Exception e) {
                 this.currentReloadIntervalMs = Math.min(maxReloadIntervalMs, currentReloadIntervalMs * 2);
                 logger.warn("Cluster resolve error; keeping the current Eureka endpoints; next reload in "
-                        + "{}[sec]", currentReloadIntervalMs / 1000, e);
+                        + currentReloadIntervalMs / 1000 + "[sec]", e);
             }
         }
         return delegateRef.get().getClusterEndpoints();

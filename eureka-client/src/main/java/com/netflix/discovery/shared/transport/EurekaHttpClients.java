@@ -24,7 +24,6 @@ import com.netflix.discovery.EurekaClientNames;
 import com.netflix.discovery.shared.resolver.AsyncResolver;
 import com.netflix.discovery.shared.resolver.ClosableResolver;
 import com.netflix.discovery.shared.resolver.ClusterResolver;
-import com.netflix.discovery.shared.resolver.EndpointRandomizer;
 import com.netflix.discovery.shared.resolver.EurekaEndpoint;
 import com.netflix.discovery.shared.resolver.aws.ApplicationsResolver;
 import com.netflix.discovery.shared.resolver.aws.AwsEndpoint;
@@ -53,14 +52,12 @@ public final class EurekaHttpClients {
                                                              EurekaClientConfig clientConfig,
                                                              EurekaTransportConfig transportConfig,
                                                              InstanceInfo myInstanceInfo,
-                                                             ApplicationsResolver.ApplicationsSource applicationsSource,
-                                                             EndpointRandomizer randomizer
-    ) {
+                                                             ApplicationsResolver.ApplicationsSource applicationsSource) {
 
         ClosableResolver queryResolver = transportConfig.useBootstrapResolverForQuery()
                 ? wrapClosable(bootstrapResolver)
                 : queryClientResolver(bootstrapResolver, transportClientFactory,
-                clientConfig, transportConfig, myInstanceInfo, applicationsSource, randomizer);
+                clientConfig, transportConfig, myInstanceInfo, applicationsSource);
         return canonicalClientFactory(EurekaClientNames.QUERY, transportConfig, queryResolver, transportClientFactory);
     }
 
@@ -108,8 +105,8 @@ public final class EurekaHttpClients {
             final EurekaTransportConfig transportConfig,
             final TransportClientFactory transportClientFactory,
             final InstanceInfo myInstanceInfo,
-            final ApplicationsResolver.ApplicationsSource applicationsSource,
-            final EndpointRandomizer randomizer) {
+            final ApplicationsResolver.ApplicationsSource applicationsSource)
+    {
         if (COMPOSITE_BOOTSTRAP_STRATEGY.equals(transportConfig.getBootstrapResolverStrategy())) {
             if (clientConfig.shouldFetchRegistry()) {
                 return compositeBootstrapResolver(
@@ -117,8 +114,7 @@ public final class EurekaHttpClients {
                         transportConfig,
                         transportClientFactory,
                         myInstanceInfo,
-                        applicationsSource,
-                        randomizer
+                        applicationsSource
                 );
             } else {
                 logger.warn("Cannot create a composite bootstrap resolver if registry fetch is disabled." +
@@ -127,7 +123,7 @@ public final class EurekaHttpClients {
         }
 
         // if all else fails, return the default
-        return defaultBootstrapResolver(clientConfig, myInstanceInfo, randomizer);
+        return defaultBootstrapResolver(clientConfig, myInstanceInfo);
     }
 
     /**
@@ -135,16 +131,14 @@ public final class EurekaHttpClients {
      *         depending on configuration for one or the other. This resolver will warm up at the start.
      */
     static ClosableResolver<AwsEndpoint> defaultBootstrapResolver(final EurekaClientConfig clientConfig,
-                                                                  final InstanceInfo myInstanceInfo,
-                                                                  final EndpointRandomizer randomizer) {
+                                                                  final InstanceInfo myInstanceInfo) {
         String[] availZones = clientConfig.getAvailabilityZones(clientConfig.getRegion());
         String myZone = InstanceInfo.getZone(availZones, myInstanceInfo);
 
         ClusterResolver<AwsEndpoint> delegateResolver = new ZoneAffinityClusterResolver(
                 new ConfigClusterResolver(clientConfig, myInstanceInfo),
                 myZone,
-                true,
-                randomizer
+                true
         );
 
         List<AwsEndpoint> initialValue = delegateResolver.getClusterEndpoints();
@@ -172,8 +166,7 @@ public final class EurekaHttpClients {
             final EurekaTransportConfig transportConfig,
             final TransportClientFactory transportClientFactory,
             final InstanceInfo myInstanceInfo,
-            final ApplicationsResolver.ApplicationsSource applicationsSource,
-            final EndpointRandomizer randomizer)
+            final ApplicationsResolver.ApplicationsSource applicationsSource)
     {
         final ClusterResolver rootResolver = new ConfigClusterResolver(clientConfig, myInstanceInfo);
 
@@ -221,7 +214,7 @@ public final class EurekaHttpClients {
 
         return new AsyncResolver<>(
                 EurekaClientNames.BOOTSTRAP,
-                new ZoneAffinityClusterResolver(compositeResolver, myZone, true, randomizer),
+                new ZoneAffinityClusterResolver(compositeResolver, myZone, true),
                 initialValue,
                 transportConfig.getAsyncExecutorThreadPoolSize(),
                 transportConfig.getAsyncResolverRefreshIntervalMs()
@@ -236,8 +229,7 @@ public final class EurekaHttpClients {
                                                              final EurekaClientConfig clientConfig,
                                                              final EurekaTransportConfig transportConfig,
                                                              final InstanceInfo myInstanceInfo,
-                                                             final ApplicationsResolver.ApplicationsSource applicationsSource,
-                                                             final EndpointRandomizer randomizer) {
+                                                             final ApplicationsResolver.ApplicationsSource applicationsSource) {
         final EurekaHttpResolver remoteResolver = new EurekaHttpResolver(
                 clientConfig,
                 transportConfig,
@@ -258,8 +250,7 @@ public final class EurekaHttpClients {
                 localResolver,
                 clientConfig,
                 transportConfig,
-                myInstanceInfo,
-                randomizer
+                myInstanceInfo
         );
     }
 
@@ -273,8 +264,7 @@ public final class EurekaHttpClients {
             final ClusterResolver<AwsEndpoint> localResolver,
             final EurekaClientConfig clientConfig,
             final EurekaTransportConfig transportConfig,
-            final InstanceInfo myInstanceInfo,
-            final EndpointRandomizer randomizer) {
+            final InstanceInfo myInstanceInfo) {
         String[] availZones = clientConfig.getAvailabilityZones(clientConfig.getRegion());
         String myZone = InstanceInfo.getZone(availZones, myInstanceInfo);
 
@@ -297,7 +287,7 @@ public final class EurekaHttpClients {
 
         return new AsyncResolver<>(
                 EurekaClientNames.QUERY,
-                new ZoneAffinityClusterResolver(compositeResolver, myZone, true, randomizer),
+                new ZoneAffinityClusterResolver(compositeResolver, myZone, true),
                 transportConfig.getAsyncExecutorThreadPoolSize(),
                 transportConfig.getAsyncResolverRefreshIntervalMs(),
                 transportConfig.getAsyncResolverWarmUpTimeoutMs()

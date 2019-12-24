@@ -1,10 +1,6 @@
 package com.netflix.discovery.shared.transport.jersey;
 
 import java.util.Collection;
-import java.util.Optional;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
 
 import com.netflix.appinfo.EurekaClientIdentity;
 import com.netflix.appinfo.InstanceInfo;
@@ -49,22 +45,12 @@ public class Jersey1TransportClientFactories implements TransportClientFactories
     public TransportClientFactory newTransportClientFactory(final EurekaClientConfig clientConfig,
                                                                    final Collection<ClientFilter> additionalFilters,
                                                                    final InstanceInfo myInstanceInfo) {
-        return newTransportClientFactory(clientConfig, additionalFilters, myInstanceInfo, Optional.empty(), Optional.empty());
-    }
-    
-    @Override
-    public TransportClientFactory newTransportClientFactory(EurekaClientConfig clientConfig,
-            Collection<ClientFilter> additionalFilters, InstanceInfo myInstanceInfo, Optional<SSLContext> sslContext,
-            Optional<HostnameVerifier> hostnameVerifier) {
         final TransportClientFactory jerseyFactory = JerseyEurekaHttpClientFactory.create(
                 clientConfig,
                 additionalFilters,
                 myInstanceInfo,
-                new EurekaClientIdentity(myInstanceInfo.getIPAddr()),
-                sslContext,
-                hostnameVerifier
+                new EurekaClientIdentity(myInstanceInfo.getIPAddr())
         );
-        
         final TransportClientFactory metricsFactory = MetricsCollectingEurekaHttpClient.createFactory(jerseyFactory);
 
         return new TransportClientFactory() {

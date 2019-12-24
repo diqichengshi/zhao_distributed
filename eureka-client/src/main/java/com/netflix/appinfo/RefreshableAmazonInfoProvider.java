@@ -45,7 +45,7 @@ public class RefreshableAmazonInfoProvider implements Provider<AmazonInfo> {
                     .newBuilder()
                     .withAmazonInfoConfig(amazonInfoConfig)
                     .autoBuild(amazonInfoConfig.getNamespace());
-            logger.info("Datacenter is: {}", DataCenterInfo.Name.Amazon);
+            logger.info("Datacenter is: " + DataCenterInfo.Name.Amazon);
         } catch (Throwable e) {
             logger.error("Cannot initialize amazon info :", e);
             throw new RuntimeException(e);
@@ -81,7 +81,10 @@ public class RefreshableAmazonInfoProvider implements Provider<AmazonInfo> {
      */
     public synchronized void refresh() {
         try {
-            AmazonInfo newInfo = getNewAmazonInfo();
+            AmazonInfo newInfo = AmazonInfo.Builder
+                    .newBuilder()
+                    .withAmazonInfoConfig(amazonInfoConfig)
+                    .autoBuild(amazonInfoConfig.getNamespace());
 
             if (shouldUpdate(newInfo, info)) {
                 // the datacenter info has changed, re-sync it
@@ -91,13 +94,6 @@ public class RefreshableAmazonInfoProvider implements Provider<AmazonInfo> {
         } catch (Throwable t) {
             logger.error("Cannot refresh the Amazon Info ", t);
         }
-    }
-
-    /* visible for testing */ AmazonInfo getNewAmazonInfo() {
-        return AmazonInfo.Builder
-                        .newBuilder()
-                        .withAmazonInfoConfig(amazonInfoConfig)
-                        .autoBuild(amazonInfoConfig.getNamespace());
     }
 
     /**

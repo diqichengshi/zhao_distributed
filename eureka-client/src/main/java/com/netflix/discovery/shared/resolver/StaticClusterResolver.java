@@ -43,7 +43,9 @@ public class StaticClusterResolver<T extends EurekaEndpoint> implements ClusterR
     public StaticClusterResolver(String region, List<T> eurekaEndpoints) {
         this.eurekaEndpoints = eurekaEndpoints;
         this.region = region;
-        logger.debug("Fixed resolver configuration: {}", eurekaEndpoints);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Fixed resolver configuration: {}", eurekaEndpoints);
+        }
     }
 
     @Override

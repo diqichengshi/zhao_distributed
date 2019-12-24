@@ -1,6 +1,5 @@
 package com.netflix.discovery.shared.transport.jersey;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
@@ -95,7 +94,6 @@ public class EurekaJerseyClientImpl implements EurekaJerseyClient {
         private EncoderWrapper encoderWrapper;
         private DecoderWrapper decoderWrapper;
         private SSLContext sslContext;
-        private HostnameVerifier hostnameVerifier;
 
         public EurekaJerseyClientBuilder withClientName(String clientName) {
             this.clientName = clientName;
@@ -189,7 +187,7 @@ public class EurekaJerseyClientImpl implements EurekaJerseyClient {
 
                 if (systemSSL) {
                     cm = createSystemSslCM();
-                } else if (sslContext != null || hostnameVerifier != null || trustStoreFileName != null) {
+                } else if (sslContext != null || trustStoreFileName != null) {
                     cm = createCustomSslCM();
                 } else {
                     cm = createDefaultSslCM();
@@ -256,11 +254,7 @@ public class EurekaJerseyClientImpl implements EurekaJerseyClient {
 
                         sslContext.init(null, trustManagers, null);
                     }
-                    
-                    if (hostnameVerifier == null) {
-                        hostnameVerifier = SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
-                    }
-                    
+                    X509HostnameVerifier hostnameVerifier = SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
                     SSLConnectionSocketFactory customSslSocketFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
                     SSLSocketFactory sslSocketFactory = new SSLSocketFactoryAdapter(customSslSocketFactory);
                     SchemeRegistry sslSchemeRegistry = new SchemeRegistry();
@@ -288,16 +282,8 @@ public class EurekaJerseyClientImpl implements EurekaJerseyClient {
                         new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
                 registry.register(
                         new Scheme("https", 443, new SSLSocketFactoryAdapter(SSLConnectionSocketFactory.getSocketFactory())));
-                
                 return new MonitoredConnectionManager(clientName, registry);
             }
-        }
-
-        /**
-         * @param hostnameVerifier
-         */
-        public void withHostnameVerifier(HostnameVerifier hostnameVerifier) {
-            this.hostnameVerifier = hostnameVerifier;
         }
     }
 }
