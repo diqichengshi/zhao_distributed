@@ -5,8 +5,8 @@
 	<artifactId>spring-cloud-netflix</artifactId>
 	<version>1.4.3.RELEASE</version>
 	<packaging>pom</packaging>
-	<name>Spring Cloud Netflix</name>
-	<description>Spring Cloud Netflix</description>
+	<name>spring cloud netflix</name>
+	<description>spring cloud netflix</description>
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-build</artifactId>
