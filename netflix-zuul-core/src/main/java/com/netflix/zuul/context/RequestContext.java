@@ -60,10 +60,14 @@ public class RequestContext extends ConcurrentHashMap<String, Object> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(RequestContext.class);
 
+    // 保存RequestContext自身类型
     protected static Class<? extends RequestContext> contextClass = RequestContext.class;
 
+    // 静态对象
     private static RequestContext testContext = null;
 
+    // 静态final修饰的ThreadLocal实例，用于存放所有的RequestContext，每个RequestContext都会绑定在自身请求的处理线程中
+    // 注意这里的ThreadLocal实例的initialValue()方法，当ThreadLocal的get()方法返回null的时候总是会调用initialValue()方法
     protected static final ThreadLocal<? extends RequestContext> threadLocal = new ThreadLocal<RequestContext>() {
         @Override
         protected RequestContext initialValue() {
@@ -104,8 +108,10 @@ public class RequestContext extends ConcurrentHashMap<String, Object> {
      * @return the current RequestContext
      */
     public static RequestContext getCurrentContext() {
+        // 这里混杂了测试的代码，暂时忽略
         if (testContext != null) return testContext;
 
+        // 当ThreadLocal的get()方法返回null的时候总是会调用initialValue()方法，所以这里是"无则新建RequestContext"的逻辑
         RequestContext context = threadLocal.get();
         return context;
     }

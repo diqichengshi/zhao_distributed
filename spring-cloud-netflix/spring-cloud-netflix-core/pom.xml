@@ -10,8 +10,8 @@
 	</parent>
 	<artifactId>spring-cloud-netflix-core</artifactId>
 	<packaging>jar</packaging>
-	<name>spring-cloud-netflix-core</name>
-	<description>spring cloud netflix core</description>
+	<name>Spring Cloud Netflix Core</name>
+	<description>Spring Cloud Netflix Core</description>
 	<properties>
 		<main.basedir>${basedir}/..</main.basedir>
 	</properties>

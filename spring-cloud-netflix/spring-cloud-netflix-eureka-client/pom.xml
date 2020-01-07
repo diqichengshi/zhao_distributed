@@ -10,7 +10,7 @@
 	</parent>
 	<artifactId>spring-cloud-netflix-eureka-client</artifactId>
 	<packaging>jar</packaging>
-	<name>spring-cloud-netflix-eureka-client</name>
+	<name>Spring Cloud Netflix Eureka Client</name>
 	<description>Spring Cloud Netflix Eureka Client</description>
 	<properties>
 		<!-- Why do I need this now? -->
@@ -132,5 +132,10 @@
 			<artifactId>spring-retry</artifactId>
 			<scope>test</scope>
 		</dependency>
+		  <dependency>
+            <groupId>com.netflix.netflix-commons</groupId>
+            <artifactId>netflix-eventbus</artifactId>
+            <version>0.3.0</version>
+        </dependency>
 	</dependencies>
 </project>

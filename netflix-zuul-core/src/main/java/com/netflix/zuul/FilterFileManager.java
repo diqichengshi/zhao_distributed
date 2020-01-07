@@ -53,6 +53,7 @@ public class FilterFileManager {
     Thread poller;
     boolean bRunning = true;
 
+    // 文件名过滤器，Zuul中的默认实现是GroovyFileFilter，只接受.groovy后缀的文件
     static FilenameFilter FILENAME_FILTER;
 
     static FilterFileManager INSTANCE;
@@ -65,6 +66,7 @@ public class FilterFileManager {
     }
 
     /**
+     * init方法是核心静态方法，它具备了配置，预处理和激活后台轮询线程的功能
      * Initialized the GroovyFileManager.
      *
      * @param pollingIntervalSeconds the polling interval in Seconds
@@ -99,12 +101,14 @@ public class FilterFileManager {
         bRunning = false;
     }
 
+    // 启动后台轮询守护线程，每休眠pollingIntervalSeconds秒则进行一次文件扫描尝试更新Filter
     void startPoller() {
         poller = new Thread("GroovyFilterFileManagerPoller") {
             public void run() {
                 while (bRunning) {
                     try {
                         sleep(pollingIntervalSeconds * 1000);
+                        // 预处理文件，实际上是ZuulFilter的预加载
                         manageFiles();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -112,11 +116,13 @@ public class FilterFileManager {
                 }
             }
         };
+        // 设置为守护线程
         poller.setDaemon(true);
         poller.start();
     }
 
     /**
+     * 根据指定目录路径获取目录，主要需要转换为ClassPath
      * Returns the directory File for a path. A Runtime Exception is thrown if the directory is in valid
      *
      * @param sPath
@@ -139,6 +145,7 @@ public class FilterFileManager {
     }
 
     /**
+     * 遍历配置目录，获取所有配置目录下的所有满足FilenameFilter过滤条件的文件
      * Returns a List<File> of all Files from all polled directories
      *
      * @return
@@ -158,6 +165,7 @@ public class FilterFileManager {
     }
 
     /**
+     * 遍历指定文件列表，调用FilterLoader单例中的putFilter
      * puts files into the FilterLoader. The FilterLoader will only addd new or changed filters
      *
      * @param aFiles a List<File>
@@ -172,6 +180,7 @@ public class FilterFileManager {
         }
     }
 
+    // 获取指定目录下的所有文件，调用processGroovyFiles，个人认为这两个方法没必要做单独封装
     void manageFiles() throws Exception, IllegalAccessException, InstantiationException {
         List<File> aFiles = getFiles();
         processGroovyFiles(aFiles);

@@ -333,6 +333,7 @@ public abstract class HystrixCollapser<BatchReturnType, ResponseType, RequestArg
      * @return {@code Observable<R>} that executes and calls back with the result of of {@link HystrixCommand}{@code <BatchReturnType>} execution after passing through {@link #mapResponseToRequests}
      *         to transform the {@code <BatchReturnType>} into {@code <ResponseType>}
      */
+    @Override
     public Observable<ResponseType> observe() {
         // use a ReplaySubject to buffer the eagerly subscribed-to Observable
         ReplaySubject<ResponseType> subject = ReplaySubject.create();

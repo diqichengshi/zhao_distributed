@@ -37,7 +37,9 @@ import java.util.concurrent.atomic.AtomicReference;
  * @param <Output> type of data emitted to stream subscribers (often is the same as A but does not have to be)
  */
 public abstract class BucketedCounterStream<Event extends HystrixEvent, Bucket, Output> {
+    // 桶数量
     protected final int numBuckets;
+    // 基于Bucket的观察流
     protected final Observable<Bucket> bucketedStream;
     protected final AtomicReference<Subscription> subscription = new AtomicReference<Subscription>(null);
 
@@ -48,6 +50,7 @@ public abstract class BucketedCounterStream<Event extends HystrixEvent, Bucket, 
     protected BucketedCounterStream(final HystrixEventStream<Event> inputEventStream, final int numBuckets, final int bucketSizeInMs,
                                     final Func2<Bucket, Event, Bucket> appendRawEventToBucket) {
         this.numBuckets = numBuckets;
+        // Event事件按照一个bucket的时间周期的合并逻辑，其实是定义了一个开放两个抽象方法getEmptyBucketSummary(), appendRawEventToBucket用于聚合
         this.reduceBucketToSummary = new Func1<Observable<Event>, Observable<Bucket>>() {
             @Override
             public Observable<Bucket> call(Observable<Event> eventBucket) {
@@ -65,9 +68,14 @@ public abstract class BucketedCounterStream<Event extends HystrixEvent, Bucket, 
             public Observable<Bucket> call() {
                 return inputEventStream
                         .observe()
-                        .window(bucketSizeInMs, TimeUnit.MILLISECONDS) //bucket it by the counter window so we can emit to the next operator in time chunks, not on every OnNext
-                        .flatMap(reduceBucketToSummary)                //for a given bucket, turn it into a long array containing counts of event types
-                        .startWith(emptyEventCountsToStart);           //start it with empty arrays to make consumer logic as generic as possible (windows are always full)
+                        // bucket it by the counter window so we can emit to the next operator in time chunks, not on every OnNext
+                        // 借助windows()操作缓存Event事件，积累到一个bucket的时间周期，统一处理
+                        .window(bucketSizeInMs, TimeUnit.MILLISECONDS)
+                        // for a given bucket, turn it into a long array containing counts of event types
+                        // 聚合一个bucket的时间周期Event数据
+                        .flatMap(reduceBucketToSummary)
+                        //start it with empty arrays to make consumer logic as generic as possible (windows are always full)
+                        .startWith(emptyEventCountsToStart);
             }
         });
     }

@@ -185,6 +185,7 @@ public class HystrixTimer {
     public static interface TimerListener {
 
         /**
+         * 指定时间周期触发回调
          * The 'tick' is called each time the interval occurs.
          * <p>
          * This method should NOT block or do any work but instead fire its work asynchronously to perform on another thread otherwise it will prevent the Timer from functioning.
@@ -196,6 +197,7 @@ public class HystrixTimer {
         public void tick();
 
         /**
+         * 时间周期
          * How often this TimerListener should 'tick' defined in milliseconds.
          */
         public int getIntervalTimeInMilliseconds();

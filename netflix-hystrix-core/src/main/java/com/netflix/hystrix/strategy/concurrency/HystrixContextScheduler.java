@@ -67,7 +67,13 @@ public class HystrixContextScheduler extends Scheduler {
     public Worker createWorker() {
         return new HystrixContextSchedulerWorker(actualScheduler.createWorker());
     }
-
+    /**
+     * 只代理，具体的调度工作由传入的actualWorker完成（即 ThreadPoolWorker）
+     *
+     * @return:
+     * @author: Administrator
+     * @date: 2020/1/6 14:14
+     */
     private class HystrixContextSchedulerWorker extends Worker {
 
         private final Worker worker;
@@ -154,7 +160,14 @@ public class HystrixContextScheduler extends Scheduler {
         public boolean isUnsubscribed() {
             return subscription.isUnsubscribed();
         }
-
+        /**
+         * schedule()方法向线程池提交任务，关键返回一个Subscription，用于调用端使用，或中断当前任务执行；
+         *
+         * @param action
+         * @return: rx.Subscription
+         * @author: Administrator
+         * @date: 2020/1/6 14:15
+         */
         @Override
         public Subscription schedule(final Action0 action) {
             if (subscription.isUnsubscribed()) {

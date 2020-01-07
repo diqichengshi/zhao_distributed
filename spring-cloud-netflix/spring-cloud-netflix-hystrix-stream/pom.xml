@@ -10,7 +10,7 @@
 	</parent>
 	<artifactId>spring-cloud-netflix-hystrix-stream</artifactId>
 	<packaging>jar</packaging>
-	<name>spring-cloud-netflix-hystrix-stream</name>
+	<name>Spring Cloud Netflix Hystrix Stream</name>
 	<description>Spring Cloud Netflix Hystrix Stream</description>
 	<properties>
 		<main.basedir>${basedir}/..</main.basedir>
@@ -91,9 +91,10 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	
 	<build>
 		<plugins>
-			<plugin>
+			<!-- <plugin>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-contract-maven-plugin</artifactId>
 				<version>${donotreplacespring-cloud-contract.version}</version>
@@ -113,7 +114,7 @@
 						<version>${project.version}</version>
 					</dependency>
 				</dependencies>
-			</plugin>
+			</plugin> -->
 		</plugins>
 		<pluginManagement>
 			<plugins>

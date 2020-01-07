@@ -156,17 +156,23 @@ public interface HystrixThreadPool {
     }
 
     /**
+     * 主要维护一个线程池和任务队列，用于异步操作，最后会传给 HystrixContextScheduler 调度器使用
      * @ExcludeFromJavadoc
      * @ThreadSafe
      */
-    /* package */static class HystrixThreadPoolDefault implements HystrixThreadPool {
+    /* package */
+    static class HystrixThreadPoolDefault implements HystrixThreadPool {
         private static final Logger logger = LoggerFactory.getLogger(HystrixThreadPoolDefault.class);
-
+        // Hystrix线程池配置，demo中有指定  
         private final HystrixThreadPoolProperties properties;
+        // 任务队列  
         @SuppressWarnings("unused")
 		private final BlockingQueue<Runnable> queue;
+        // 线程池  
         private final ThreadPoolExecutor threadPool;
+        // 线程监控  
         private final HystrixThreadPoolMetrics metrics;
+        // 队列大小  
         private final int queueSize;
 
         public HystrixThreadPoolDefault(HystrixThreadPoolKey threadPoolKey, HystrixThreadPoolProperties.Setter propertiesDefaults) {
@@ -204,6 +210,7 @@ public interface HystrixThreadPool {
         @Override
         public Scheduler getScheduler(Func0<Boolean> shouldInterruptThread) {
             touchConfig();
+            // 传给HystrixContextScheduler调度器使用
             return new HystrixContextScheduler(HystrixPlugins.getInstance().getConcurrencyStrategy(), this, shouldInterruptThread);
         }
 
