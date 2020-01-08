@@ -32,7 +32,7 @@
     <dependencies>
         <dependency>
             <groupId>com.alibaba</groupId>
-            <artifactId>dubbo-rpc-api</artifactId>
+            <artifactId>dubbo-rpc</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>

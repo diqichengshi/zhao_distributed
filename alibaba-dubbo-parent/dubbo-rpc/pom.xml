@@ -36,11 +36,6 @@
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
-            <artifactId>dubbo-rpc</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
             <artifactId>dubbo-remoting</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
@@ -98,6 +93,10 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libthrift</artifactId>
         </dependency>
     </dependencies>
 

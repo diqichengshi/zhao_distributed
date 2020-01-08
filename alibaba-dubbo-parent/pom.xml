@@ -47,8 +47,8 @@
         <module>dubbo-registry</module>
         <module>dubbo-config</module>
         <module>dubbo-monitor</module>
-
     </modules>
+
     <profiles>
         <profile>
             <id>test</id>
