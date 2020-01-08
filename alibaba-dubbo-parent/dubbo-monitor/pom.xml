@@ -22,14 +22,18 @@
         <version>2.5.7</version>
     </parent>
     <artifactId>dubbo-monitor</artifactId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>The monitor module of dubbo project</description>
     <properties>
         <skip_maven_deploy>true</skip_maven_deploy>
     </properties>
-    <modules>
-        <module>dubbo-monitor-api</module>
-        <module>dubbo-monitor-default</module>
-    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo-rpc-api</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+    </dependencies>
 </project>

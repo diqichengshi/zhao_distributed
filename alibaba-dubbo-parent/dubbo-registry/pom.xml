@@ -22,17 +22,49 @@
         <version>2.5.7</version>
     </parent>
     <artifactId>dubbo-registry</artifactId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>The registry module of dubbo project</description>
     <properties>
         <skip_maven_deploy>true</skip_maven_deploy>
     </properties>
-    <modules>
-        <module>dubbo-registry-api</module>
-        <module>dubbo-registry-default</module>
-        <module>dubbo-registry-multicast</module>
-        <module>dubbo-registry-zookeeper</module>
-        <module>dubbo-registry-redis</module>
-    </modules>
+    <dependencies>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo-cluster</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo-container</artifactId>
+            <version>${project.parent.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>jetty</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo-rpc</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo-remoting</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.bsf</groupId>
+            <artifactId>bsf-api</artifactId>
+            <scope>test</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>
