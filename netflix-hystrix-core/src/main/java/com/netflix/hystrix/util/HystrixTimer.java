@@ -64,7 +64,8 @@ public class HystrixTimer {
         }
     }
 
-    /* package */ AtomicReference<ScheduledExecutor> executor = new AtomicReference<ScheduledExecutor>();
+    /* package */
+    AtomicReference<ScheduledExecutor> executor = new AtomicReference<ScheduledExecutor>();
 
     /**
      * Add a {@link TimerListener} that will be executed until it is garbage collected or removed by clearing the returned {@link Reference}.
@@ -102,7 +103,8 @@ public class HystrixTimer {
                 }
             }
         };
-
+        
+        // 使用ScheduledThreadPoolExecutor进行周期性任务的调度
         ScheduledFuture<?> f = executor.get().getThreadPool().scheduleAtFixedRate(r, listener.getIntervalTimeInMilliseconds(), listener.getIntervalTimeInMilliseconds(), TimeUnit.MILLISECONDS);
         return new TimerReference(listener, f);
     }

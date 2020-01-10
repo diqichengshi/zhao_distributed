@@ -665,7 +665,8 @@ abstract class AbstractCommand<R> implements HystrixInvokableInfo<R>, HystrixObs
         if (properties.executionTimeoutEnabled().get()) {
         	// 最终调用executeCommandWithSpecifiedIsolation(_cmd) 根据隔离级别选择是'线程方式'隔离执行还是'信号量方式'隔离执行；
             execution = executeCommandWithSpecifiedIsolation(_cmd)
-            		 // 超时熔断能力通过 Observable的left操作在原有的 HystrixObservable 上进行包装实现的，核心 HystrixObservableTimeoutOperator
+            		 // 添加超时中断逻辑  
+            		 // 超时熔断能力通过Observable的left操作在原有的 HystrixObservable上进行包装实现的，核心HystrixObservableTimeoutOperator
                     .lift(new HystrixObservableTimeoutOperator<R>(_cmd));
         }
         // 否则不需要包装中断能力 
@@ -1166,6 +1167,12 @@ abstract class AbstractCommand<R> implements HystrixInvokableInfo<R>, HystrixObs
         return false;
     }
 
+	/**
+	 * 包装超时中断的主流程，借助下面的组件实现超时中断逻辑
+	 * 1.HystrixTimer：依赖ScheduledExecutor，最终使用JDK的ScheduledThreadPoolExecutor实现指定时间后的回调
+	 * 2.TimerListener：实现超时的回调逻辑
+	 * 3.CompositeSubscription：RxJava 1.x 提供，通过unsubscribe()方法可以中断当前任务的执行
+	 */
     private static class HystrixObservableTimeoutOperator<R> implements Operator<R, R> {
 
         final AbstractCommand<R> originalCommand;
@@ -1176,7 +1183,7 @@ abstract class AbstractCommand<R> implements HystrixInvokableInfo<R>, HystrixObs
 
         @Override
         public Subscriber<? super R> call(final Subscriber<? super R> child) {
-            // 鍒涘缓涓�涓粍鍚堣闃咃紝鐢ㄤ簬娣诲姞涓�缁凞isposable锛屽揩閫熻В闄よ闃咃紝杩欓噷鐢ㄤ簬瓒呮椂锛屼腑鏂换鍔�
+        	// 创建一个组合订阅，用于添加一组Disposable，快速解除订阅，这里用于超时，中断任务  
             final CompositeSubscription s = new CompositeSubscription();
             // if the child unsubscribes we unsubscribe our parent as well
             child.add(s);
@@ -1184,21 +1191,21 @@ abstract class AbstractCommand<R> implements HystrixInvokableInfo<R>, HystrixObs
             //capture the HystrixRequestContext upfront so that we can use it in the timeout thread later
             final HystrixRequestContext hystrixRequestContext = HystrixRequestContext.getContextForCurrentThread();
 
-            // 鍒涘缓涓�涓秴鏃跺洖璋冪被
+            // 创建一个超时回调类  
             TimerListener listener = new TimerListener() {
 
                 @Override
                 public void tick() {
                     // if we can go from NOT_EXECUTED to TIMED_OUT then we do the timeout codepath
                     // otherwise it means we lost a race and the run() execution completed or did not start
-                    // 璁剧疆TimedOutStatus
+                	// 设置TimedOutStatus
                     if (originalCommand.isCommandTimedOut.compareAndSet(TimedOutStatus.NOT_EXECUTED, TimedOutStatus.TIMED_OUT)) {
                         // report timeout failure
-                        // 鎶ュ憡瓒呮椂
+                    	// 报告超时  
                         originalCommand.eventNotifier.markEvent(HystrixEventType.TIMEOUT, originalCommand.commandKey);
 
                         // shut down the original request
-                        // 閫氳繃CompositeSubscription鐨剈nsubscribe涓柇姝ｅ湪寮傛鎵ц鐨凥ystrixCommand
+                        // 通过CompositeSubscription的unsubscribe中断正在异步执行的HystrixCommand
                         s.unsubscribe();
 
                         final HystrixContextRunnable timeoutRunnable = new HystrixContextRunnable(originalCommand.concurrencyStrategy, hystrixRequestContext, new Runnable() {
@@ -1209,13 +1216,13 @@ abstract class AbstractCommand<R> implements HystrixInvokableInfo<R>, HystrixObs
                             }
                         });
 
-                        // 鍚姩timeoutRunnable锛屽氨鏄墽琛屼笂闈㈢殑child.onError(new HystrixTimeoutException()); 鍙戦�乪rror鏃堕棿锛岄�氱煡瑙傚療鑰�
+                        // 启动timeoutRunnable，就是执行上面的child.onError(new HystrixTimeoutException()); 发送error时间，通知观察者  
                         timeoutRunnable.run();
-                        //if it did not start, then we need to mark a command start for concurrency metrics, and then issue the timeout
+                        // if it did not start, then we need to mark a command start for concurrency metrics, and then issue the timeout
                     }
                 }
 
-                // 鑾峰彇瓒呮椂鏃堕棿
+                // 获取超时时间  
                 @Override
                 public int getIntervalTimeInMilliseconds() {
                     return originalCommand.properties.executionTimeoutInMilliseconds().get();
@@ -1225,7 +1232,7 @@ abstract class AbstractCommand<R> implements HystrixInvokableInfo<R>, HystrixObs
             final Reference<TimerListener> tl = HystrixTimer.getInstance().addTimerListener(listener);
 
             // set externally so execute/queue can see this
-            // 璁剧疆褰撳墠鏃堕棿锛岀敤浜庢瘮瀵硅秴鏃�
+            // 设置当前时间，用于比对超时  
             originalCommand.timeoutTimer.set(tl);
 
             /**

@@ -27,6 +27,7 @@ import com.netflix.hystrix.HystrixThreadPool;
 import com.netflix.hystrix.strategy.HystrixPlugins;
 
 /**
+ * 这个调度器除了封装线程池和同步策略外，创建一个HystrixContextSchedulerWorker，没有其他特殊的操作
  * Wrap a {@link Scheduler} so that scheduled actions are wrapped with {@link HystrixContexSchedulerAction} so that
  * the {@link HystrixRequestContext} is properly copied across threads (if they are used by the {@link Scheduler}).
  */
@@ -63,16 +64,18 @@ public class HystrixContextScheduler extends Scheduler {
         this.actualScheduler = new ThreadPoolScheduler(threadPool, shouldInterruptThread);
     }
 
+	/**
+	 * 这个调度器除了封装线程池和同步策略外，创建一个HystrixContextSchedulerWorker，没有其他特殊的操作
+	 */
     @Override
     public Worker createWorker() {
         return new HystrixContextSchedulerWorker(actualScheduler.createWorker());
     }
+    
     /**
-     * 只代理，具体的调度工作由传入的actualWorker完成（即 ThreadPoolWorker）
-     *
-     * @return:
      * @author: Administrator
-     * @date: 2020/1/6 14:14
+     * 只代理，具体的调度工作由传入的actualWorker完成（即 ThreadPoolWorker）
+     * HystrixContextSchedulerWorker，这个调度器除了封装线程池和同步策略外，只一个HystrixContextSchedulerWorker外，没有特殊的操作。
      */
     private class HystrixContextSchedulerWorker extends Worker {
 
@@ -101,7 +104,7 @@ public class HystrixContextScheduler extends Scheduler {
             }
             return worker.schedule(new HystrixContexSchedulerAction(concurrencyStrategy, action), delayTime, unit);
         }
-
+        
         @Override
         public Subscription schedule(Action0 action) {
             if (threadPool != null) {
