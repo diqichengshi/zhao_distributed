@@ -171,7 +171,8 @@ public class EndpointUtils {
 
 	/**
 	 * Get the list of all eureka service urls from properties file for the eureka
-	 * client to talk to. �������ļ��л�ȡ����eureka����url���б����Ա���eureka�ͻ���ͨ��
+	 * client to talk to. 
+	 * 从属性文件中获取所有eureka服务url的列表，以便与eureka客户机通信
 	 * 
 	 * @param clientConfig   the clientConfig to use
 	 * @param instanceZone   The zone in which the client resides
@@ -182,15 +183,17 @@ public class EndpointUtils {
 	public static List<String> getServiceUrlsFromConfig(EurekaClientConfig clientConfig, String instanceZone,
 			boolean preferSameZone) {
 		List<String> orderedUrls = new ArrayList<String>();
-		// �ص㲿��, ��ȡ����ض�ʵ�����ڵ�����
+		// 重点部分，获取这个特定实例所在的区域。
+		// 从配置中读取了一个Region返回，所以一个微服务应用只可以属于一个Region，如果不特别配置则默认default。若我们要自己设置，可以通过eureka.client.region属性来定义。
 		String region = getRegion(clientConfig);
+		// 可以知道当我们没有特别为Region配置Zone的时候，将默认采用defaultZone。
 		String[] availZones = clientConfig.getAvailabilityZones(clientConfig.getRegion());
 		if (availZones == null || availZones.length == 0) {
 			availZones = new String[1];
 			availZones[0] = DEFAULT_ZONE;
 		}
 		logger.debug("The availability zone for the given region {} are {}", region, Arrays.toString(availZones));
-		// �ص㲿��
+		// 重点部分，它根据传入的参数按一定算法确定加载位于哪一个Zone配置的serviceUrls。
 		int myZoneOffset = getZoneOffset(instanceZone, preferSameZone, availZones);
 
 		List<String> serviceUrls = clientConfig.getEurekaServerServiceUrls(availZones[myZoneOffset]);
@@ -346,7 +349,7 @@ public class EndpointUtils {
 
 	/**
 	 * Get the region that this particular instance is in.
-	 *
+	 *  获取这个特定实例所在的区域
 	 * @return - The region in which the particular instance belongs to.
 	 */
 	public static String getRegion(EurekaClientConfig clientConfig) {
@@ -358,7 +361,7 @@ public class EndpointUtils {
 		return region;
 	}
 
-	// FIXME this is no valid for vpc
+	// this is no valid for vpc
 	private static boolean isEC2Url(String zoneCname) {
 		return zoneCname.startsWith("ec2");
 	}

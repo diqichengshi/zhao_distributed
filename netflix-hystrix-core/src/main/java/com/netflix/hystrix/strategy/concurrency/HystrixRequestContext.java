@@ -152,7 +152,7 @@ public class HystrixRequestContext implements Closeable {
      * This method invokes <code>shutdown()</code>
      */
     public void close() {
-      shutdown();
+        shutdown();
     }
 
 }

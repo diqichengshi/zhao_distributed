@@ -141,7 +141,9 @@ public class HystrixThreadEventStream {
     }
 
     public void executionDone(ExecutionResult executionResult, HystrixCommandKey commandKey, HystrixThreadPoolKey threadPoolKey) {
+        // 根据处理结果，构造一个HystrixCommandCompletion事件  
         HystrixCommandCompletion event = HystrixCommandCompletion.from(executionResult, commandKey, threadPoolKey);
+        // 通知事件完成主题的监听者  
         writeOnlyCommandCompletionSubject.onNext(event);
     }
 

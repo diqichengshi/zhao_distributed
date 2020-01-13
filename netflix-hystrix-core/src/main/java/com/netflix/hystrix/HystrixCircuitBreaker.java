@@ -154,7 +154,7 @@ public interface HystrixCircuitBreaker {
 
         // 断路器当前状态，利用原子操作保证线程安全
         private final AtomicReference<Status> status = new AtomicReference<Status>(Status.CLOSED);
-        // 断路器是否打开，利用原子操作保证线程安全，circuitOpened > 0 则为打开状态，同时该变量记录了打开的时间，用于间隔“circuitBreakerSleepWindowInMilliseconds”重试，
+        // 断路器是否打开，利用原子操作保证线程安全，circuitOpened>0则为打开状态，同时该变量记录了打开的时间，用于间隔'circuitBreakerSleepWindowInMilliseconds'重试，
         private final AtomicLong circuitOpened = new AtomicLong(-1);
         // 指标数据订阅
         private final AtomicReference<Subscription> activeSubscription = new AtomicReference<Subscription>(null);
@@ -170,7 +170,7 @@ public interface HystrixCircuitBreaker {
         }
 
         /**
-         * 本方法是核心：订阅 metrics 指标数据事件，计算 OPEN/CLOSED 状态，并更新
+         * 本方法是核心：订阅metrics指标数据事件，计算OPEN/CLOSED状态，并更新
          */
         private Subscription subscribeToStream() {
             /*
@@ -202,7 +202,7 @@ public interface HystrixCircuitBreaker {
                                 // 指标由用户通过'statisticalWindowVolumeThreshold'定义；
                             } else {
                                 if (hc.getErrorPercentage() < properties.circuitBreakerErrorThresholdPercentage().get()) {
-                                    //we are not past the minimum error threshold for the stat window,
+                                    // we are not past the minimum error threshold for the stat window,
                                     // so no change to circuit status.
                                     // if it was CLOSED, it stays CLOSED
                                     // if it was half-open, we need to wait for a successful command execution

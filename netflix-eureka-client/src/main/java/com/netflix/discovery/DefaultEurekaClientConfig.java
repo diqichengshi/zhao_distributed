@@ -337,14 +337,15 @@ public class DefaultEurekaClientConfig implements EurekaClientConfig {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * Ribbon的默认策略会优先访问同客户端处于一个Zone中的服务端实例，只有当同一个Zone中没有可用服务端实例的时候才会访问其他Zone中的实例
 	 * @see com.netflix.discovery.EurekaClientConfig#getEurekaServerServiceUrls()
 	 */
 	@Override
 	public List<String> getEurekaServerServiceUrls(String myZone) {
-		// �Ȼ�ȡͬһ��Zone�еķ����ʵ��
+	 	// 先获取同一个Zone中的服务端实例
 		String serviceUrls = configInstance
 				.getStringProperty(namespace + CONFIG_EUREKA_SERVER_SERVICE_URL_PREFIX + "." + myZone, null).get();
+		// 如果为空再去获取default Zone的实例
 		if (serviceUrls == null || serviceUrls.isEmpty()) {
 			serviceUrls = configInstance
 					.getStringProperty(namespace + CONFIG_EUREKA_SERVER_SERVICE_URL_PREFIX + ".default", null).get();

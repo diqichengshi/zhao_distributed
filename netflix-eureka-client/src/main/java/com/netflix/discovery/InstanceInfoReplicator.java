@@ -107,7 +107,7 @@ class InstanceInfoReplicator implements Runnable {
 
 			Long dirtyTimestamp = instanceInfo.isDirtyWithTime();
 			if (dirtyTimestamp != null) {
-				// ÕæÕı´¥·¢µ÷ÓÃ×¢²áµÄµØ·½
+				// çœŸæ­£è§¦å‘è°ƒç”¨æ³¨å†Œçš„åœ°æ–¹
 				discoveryClient.register();
 				instanceInfo.unsetIsDirty(dirtyTimestamp);
 			}

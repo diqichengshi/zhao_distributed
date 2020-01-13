@@ -332,19 +332,30 @@ public class HystrixCommandMetrics extends HystrixMetrics {
         return concurrentExecutionCount.get();
     }
 
-    /* package-private */ void markCommandStart(HystrixCommandKey commandKey, HystrixThreadPoolKey threadPoolKey, HystrixCommandProperties.ExecutionIsolationStrategy isolationStrategy) {
+    /* package-private */
+    void markCommandStart(HystrixCommandKey commandKey, HystrixThreadPoolKey threadPoolKey, HystrixCommandProperties.ExecutionIsolationStrategy isolationStrategy) {
         int currentCount = concurrentExecutionCount.incrementAndGet();
         HystrixThreadEventStream.getInstance().commandExecutionStarted(commandKey, threadPoolKey, isolationStrategy, currentCount);
     }
 
-    /* package-private */ void markCommandDone(ExecutionResult executionResult, HystrixCommandKey commandKey, HystrixThreadPoolKey threadPoolKey, boolean executionStarted) {
+    /* package-private */ 
+    /**
+     * 通过HystrixThreadEventStream执行executionDone执行命令结束的相关操作
+     * @param executionResult
+     * @param commandKey
+     * @param threadPoolKey
+     * @param executionStarted
+     */
+    void markCommandDone(ExecutionResult executionResult, HystrixCommandKey commandKey, HystrixThreadPoolKey threadPoolKey, boolean executionStarted) {
+        // 线程事件流，事件和事件监听器采用观察者模式，互相进行了隔离
         HystrixThreadEventStream.getInstance().executionDone(executionResult, commandKey, threadPoolKey);
         if (executionStarted) {
             concurrentExecutionCount.decrementAndGet();
         }
     }
 
-    /* package-private */ HealthCountsStream getHealthCountsStream() {
+    /* package-private */ 
+    HealthCountsStream getHealthCountsStream() {
         return healthCountsStream;
     }
 

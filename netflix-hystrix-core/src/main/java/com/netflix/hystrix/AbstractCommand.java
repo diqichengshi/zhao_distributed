@@ -157,9 +157,9 @@ abstract class AbstractCommand<R> implements HystrixInvokableInfo<R>, HystrixObs
     }
 
     protected AbstractCommand(HystrixCommandGroupKey group, HystrixCommandKey key, HystrixThreadPoolKey threadPoolKey, HystrixCircuitBreaker circuitBreaker, HystrixThreadPool threadPool,
-                              HystrixCommandProperties.Setter commandPropertiesDefaults, HystrixThreadPoolProperties.Setter threadPoolPropertiesDefaults,
-                              HystrixCommandMetrics metrics, TryableSemaphore fallbackSemaphore, TryableSemaphore executionSemaphore,
-                              HystrixPropertiesStrategy propertiesStrategy, HystrixCommandExecutionHook executionHook) {
+                            HystrixCommandProperties.Setter commandPropertiesDefaults, HystrixThreadPoolProperties.Setter threadPoolPropertiesDefaults,
+                            HystrixCommandMetrics metrics, TryableSemaphore fallbackSemaphore, TryableSemaphore executionSemaphore,
+                            HystrixPropertiesStrategy propertiesStrategy, HystrixCommandExecutionHook executionHook) {
 
         this.commandGroup = initGroupKey(group);
         this.commandKey = initCommandKey(key, getClass());
@@ -236,8 +236,8 @@ abstract class AbstractCommand<R> implements HystrixInvokableInfo<R>, HystrixObs
     }
 
     private static HystrixCommandMetrics initMetrics(HystrixCommandMetrics fromConstructor, HystrixCommandGroupKey groupKey,
-                                                     HystrixThreadPoolKey threadPoolKey, HystrixCommandKey commandKey,
-                                                     HystrixCommandProperties properties) {
+                                                    HystrixThreadPoolKey threadPoolKey, HystrixCommandKey commandKey,
+                                                    HystrixCommandProperties properties) {
         if (fromConstructor == null) {
             return HystrixCommandMetrics.getInstance(commandKey, groupKey, threadPoolKey, properties);
         } else {
@@ -414,7 +414,7 @@ abstract class AbstractCommand<R> implements HystrixInvokableInfo<R>, HystrixObs
             }
         };
 
-        // 封装Hystrix的核心流程，根据 HystrixCircuitBreaker提供熔断器状态，确定执行run()还是getFallback()；
+        // 封装Hystrix的核心流程，根据HystrixCircuitBreaker提供熔断器状态，确定执行run()还是getFallback()；
         final Func0<Observable<R>> applyHystrixSemantics = new Func0<Observable<R>>() {
             @Override
             public Observable<R> call() {
@@ -991,14 +991,18 @@ abstract class AbstractCommand<R> implements HystrixInvokableInfo<R>, HystrixObs
         metrics.markCommandDone(cacheOnlyForMetrics, commandKey, threadPoolKey, commandExecutionStarted);
         eventNotifier.markEvent(HystrixEventType.RESPONSE_FROM_CACHE, commandKey);
     }
-
+    /**
+     * HystrixCommand命令执行结束，根据执行结果做相应的处理
+     * 主要是调用HystrixCommandMetrics的markCommandDone方法
+     * @param commandExecutionStarted
+     */
     private void handleCommandEnd(boolean commandExecutionStarted) {
         Reference<TimerListener> tl = timeoutTimer.get();
         if (tl != null) {
             tl.clear();
         }
 
-        // 璁板綍鐢ㄦ埛鎵ц鏃堕棿
+        // 记录用户执行时间
         long userThreadLatency = System.currentTimeMillis() - commandStartTimestamp;
         executionResult = executionResult.markUserThreadCompletion((int) userThreadLatency);
         if (executionResultAtTimeOfCancellation == null) {

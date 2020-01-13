@@ -424,7 +424,7 @@ public class DiscoveryClient implements EurekaClient {
 		if (this.preRegistrationHandler != null) {
 			this.preRegistrationHandler.beforeRegistration();
 		}
-		// ÖØµã·½·¨
+		// é‡ç‚¹éƒ¨åˆ†ï¼Œåˆå§‹åŒ–å®šæ—¶ä»»åŠ¡
 		initScheduledTasks();
 
 		try {
@@ -791,7 +791,7 @@ public class DiscoveryClient implements EurekaClient {
 		logger.info(PREFIX + appPathIdentifier + ": registering service...");
 		EurekaHttpResponse<Void> httpResponse;
 		try {
-			// Í¨¹ıRESTÇëÇóµÄ·½Ê½×¢²áeureka service
+			// é€šè¿‡RESTè¯·æ±‚çš„æ–¹å¼æ³¨å†Œeureka service
 			httpResponse = eurekaTransport.registrationClient.register(instanceInfo);
 		} catch (Exception e) {
 			logger.warn("{} - registration failed {}", PREFIX + appPathIdentifier, e.getMessage(), e);
@@ -898,8 +898,9 @@ public class DiscoveryClient implements EurekaClient {
 	}
 
 	/**
-	 * Fetches the registry information. »ñÈ¡×¢²á±íĞÅÏ¢
-	 * ³ı·ÇÔÚĞ­µ÷eureka·şÎñÆ÷ºÍ¿Í»§¶Ë×¢²á±íĞÅÏ¢·½Ãæ´æÔÚÎÊÌâ£¬·ñÔò´Ë·½·¨Ö»³¢ÊÔÔÚµÚÒ»´Î»ñÈ¡Ö®ºó»ñÈ¡ÔöÁ¿
+	 * Fetches the registry information.
+	 * è·å–æ³¨å†Œè¡¨ä¿¡æ¯
+	 * é™¤éåœ¨åè°ƒeurekaæœåŠ¡å™¨å’Œå®¢æˆ·ç«¯æ³¨å†Œè¡¨ä¿¡æ¯æ–¹é¢å­˜åœ¨é—®é¢˜ï¼Œå¦åˆ™æ­¤æ–¹æ³•åªå°è¯•åœ¨ç¬¬ä¸€æ¬¡è·å–ä¹‹åè·å–å¢é‡
 	 * <p>
 	 * This method tries to get only deltas after the first fetch unless there is an
 	 * issue in reconciling eureka server and client registry information.
@@ -915,7 +916,7 @@ public class DiscoveryClient implements EurekaClient {
 		try {
 			// If the delta is disabled or if it is the first time, get all
 			// applications
-			// Èç¹û½ûÓÃÁËÔöÁ¿£¬»òÕßÕâÊÇµÚÒ»´Î£¬Ôò»ñÈ¡ËùÓĞÓ¦ÓÃ³ÌĞò
+			// å¦‚æœç¦ç”¨äº†å¢é‡ï¼Œæˆ–è€…è¿™æ˜¯ç¬¬ä¸€æ¬¡ï¼Œåˆ™è·å–æ‰€æœ‰åº”ç”¨ç¨‹åº
 			Applications applications = getApplications();
 
 			if (clientConfig.shouldDisableDelta()
@@ -939,10 +940,12 @@ public class DiscoveryClient implements EurekaClient {
 				logger.info("Registered Applications size is zero : {}",
 						(applications.getRegisteredApplications().size() == 0));
 				logger.info("Application version is -1: {}", (applications.getVersion() == -1));
-				// µÚÒ»´Î»ñÈ¡
+				//  ç¬¬ä¸€æ¬¡è·å–
+				// ä»eurekaæœåŠ¡å™¨è·å–å®Œæ•´çš„æ³¨å†Œè¡¨ä¿¡æ¯ï¼Œå¹¶å°†å…¶å­˜å‚¨åœ¨æœ¬åœ°
 				getAndStoreFullRegistry();
 			} else {
-				// ·ÇµÚÒ»´Î»ñÈ¡
+				//  éç¬¬ä¸€æ¬¡è·å–
+				// ä»eurekaæœåŠ¡å™¨è·å–deltaæ³¨å†Œè¡¨ä¿¡æ¯å¹¶æ›´æ–°å®ƒåœ¨å½“åœ°
 				getAndUpdateDelta(applications);
 			}
 			applications.setAppsHashCode(applications.getReconcileHashCode());
@@ -958,21 +961,21 @@ public class DiscoveryClient implements EurekaClient {
 		}
 
 		// Notify about cache refresh before updating the instance remote status
-		// ÔÚ¸üĞÂÊµÀıÔ¶³Ì×´Ì¬Ö®Ç°£¬Í¨Öª»º´æË¢ĞÂ
+		// åœ¨æ›´æ–°å®ä¾‹è¿œç¨‹çŠ¶æ€ä¹‹å‰ï¼Œé€šçŸ¥ç¼“å­˜åˆ·æ–°
 		onCacheRefreshed();
 
 		// Update remote status based on refreshed data held in the cache
-		// ¸ù¾İ»º´æÖĞ±£´æµÄË¢ĞÂÊı¾İ¸üĞÂÔ¶³Ì×´Ì¬
+		//  æ ¹æ®ç¼“å­˜ä¸­ä¿å­˜çš„åˆ·æ–°æ•°æ®æ›´æ–°è¿œç¨‹çŠ¶æ€
 		updateInstanceRemoteStatus();
 
 		// registry was fetched successfully, so return true
-		// ³É¹¦»ñÈ¡registry£¬Òò´Ë·µ»Øtrue
+		// æˆåŠŸè·å–registryï¼Œå› æ­¤è¿”å›true
 		return true;
 	}
 
 	/**
 	 * Gets the full registry information from the eureka server and stores it
-	 * locally. ´Óeureka·şÎñÆ÷»ñÈ¡ÍêÕûµÄ×¢²á±íĞÅÏ¢£¬²¢½«Æä´æ´¢ÔÚ±¾µØ
+	 * locally. ï¿½ï¿½eurekaï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ´¢ï¿½Ú±ï¿½ï¿½ï¿½
 	 */
 	private synchronized void updateInstanceRemoteStatus() {
 		// Determine this instance's status for this app and set to UNKNOWN if not found
@@ -1017,10 +1020,9 @@ public class DiscoveryClient implements EurekaClient {
 	}
 
 	/**
-	  *  ´Óeureka·şÎñÆ÷»ñÈ¡ÍêÕûµÄ×¢²á±íĞÅÏ¢£¬²¢½«Æä´æ´¢ÔÚ±¾µØ
 	 * Gets the full registry information from the eureka server and stores it
 	 * locally. When applying the full registry, the following flow is observed:
-	 *
+	 * ä»eurekaæœåŠ¡å™¨è·å–å®Œæ•´çš„æ³¨å†Œè¡¨ä¿¡æ¯ï¼Œå¹¶å°†å…¶å­˜å‚¨åœ¨æœ¬åœ°ã€‚
 	 * if (update generation have not advanced (due to another thread)) atomically
 	 * set the registry to the new registry fi
 	 *
@@ -1053,12 +1055,12 @@ public class DiscoveryClient implements EurekaClient {
 	}
 
 	/**
-	  *  ´Óeureka·şÎñÆ÷»ñÈ¡delta×¢²á±íĞÅÏ¢²¢¸üĞÂËüÔÚµ±µØ
 	 * Get the delta registry information from the eureka server and update it
 	 * locally. When applying the delta, the following flow is observed:
 	 * if (update generation have not advanced (due to another thread)) atomically
 	 * try to: update application with the delta and get reconcileHashCode abort
 	 * entire processing otherwise do reconciliation if reconcileHashCode clash fi
+	 * ä»eurekaæœåŠ¡å™¨è·å–deltaæ³¨å†Œè¡¨ä¿¡æ¯å¹¶æ›´æ–°å®ƒåœ¨å½“åœ°
 	 * @return the client response
 	 * @throws Throwable on error
 	 */
@@ -1074,7 +1076,7 @@ public class DiscoveryClient implements EurekaClient {
 		if (delta == null) {
 			logger.warn("The server does not allow the delta revision to be applied because it is not safe. "
 					+ "Hence got the full registry.");
-			// ÖØĞÂµ÷ÓÃgetAndStoreFullRegistry·½·¨½øĞĞREST·½Ê½×¢²á
+			 // é‡æ–°è°ƒç”¨getAndStoreFullRegistryæ–¹æ³•è¿›è¡ŒRESTæ–¹å¼æ³¨å†Œ
 			getAndStoreFullRegistry();
 		} else if (fetchRegistryGeneration.compareAndSet(currentUpdateGeneration, currentUpdateGeneration + 1)) {
 			logger.debug("Got delta update with apps hashcode {}", delta.getAppsHashCode());
@@ -1241,28 +1243,30 @@ public class DiscoveryClient implements EurekaClient {
 	 */
 	private void initScheduledTasks() {
 		if (clientConfig.shouldFetchRegistry()) {
-			// registry cache refresh timer
+			// registry cache refresh timer,CacheRefreshThread
 			int registryFetchIntervalSeconds = clientConfig.getRegistryFetchIntervalSeconds();
 			int expBackOffBound = clientConfig.getCacheRefreshExecutorExponentialBackOffBound();
+			//'æœåŠ¡è·å–'ä¼šæ ¹æ®æ˜¯å¦æ˜¯ç¬¬ä¸€æ¬¡è·å–å‘èµ·ä¸åŒçš„RESTè¯·æ±‚å’Œç›¸åº”å¤„ç†
 			scheduler.schedule(
 					new TimedSupervisorTask("cacheRefresh", scheduler, cacheRefreshExecutor,
 							registryFetchIntervalSeconds, TimeUnit.SECONDS, expBackOffBound, new CacheRefreshThread()),
 					registryFetchIntervalSeconds, TimeUnit.SECONDS);
 		}
-
+		// åœ¨è¯¥åˆ†æ”¯å†…ï¼Œåˆ›å»ºäº†ä¸€ä¸ªInstanceInfoReplicatorç±»çš„å®ä¾‹ï¼Œå®ƒä¼šæ‰§è¡Œä¸€ä¸ªå®šæ—¶ä»»åŠ¡ï¼Œè€Œè¿™ä¸ªå®šæ—¶ä»»åŠ¡çš„run()å‡½æ•°æ˜¯çœŸæ­£è§¦å‘è°ƒç”¨æ³¨å†Œçš„åœ°æ–¹
 		if (clientConfig.shouldRegisterWithEureka()) {
 			int renewalIntervalInSecs = instanceInfo.getLeaseInfo().getRenewalIntervalInSecs();
 			int expBackOffBound = clientConfig.getHeartbeatExecutorExponentialBackOffBound();
 			logger.info("Starting heartbeat executor: " + "renew interval is: " + renewalIntervalInSecs);
 
-			// Heartbeat timer
+			// Heartbeat timer,HeartbeatThread
+			// 'æœåŠ¡ç»­çº¦'çš„å®ç°è¾ƒä¸ºç®€å•ï¼Œç›´æ¥ä»¥RESTè¯·æ±‚çš„æ–¹å¼è¿›è¡Œç»­çº¦
 			scheduler.schedule(
 					new TimedSupervisorTask("heartbeat", scheduler, heartbeatExecutor, renewalIntervalInSecs,
 							TimeUnit.SECONDS, expBackOffBound, new HeartbeatThread()),
 					renewalIntervalInSecs, TimeUnit.SECONDS);
 
 			// InstanceInfo replicator
-			// ´´½¨ÁËÒ»¸öInstanceInfoReplicatorÀàµÄÊµÀı£¬Ëü»áÖ´ĞĞÒ»¸ö¶¨Ê±ÈÎÎñ£¬¸ÃÀàµÄrun()º¯Êı´¥·¢µ÷ÓÃ×¢²áµÄµØ·½
+			// åˆ›å»ºäº†ä¸€ä¸ªInstanceInfoReplicatorç±»çš„å®ä¾‹ï¼Œå®ƒä¼šæ‰§è¡Œä¸€ä¸ªå®šæ—¶ä»»åŠ¡
 			instanceInfoReplicator = new InstanceInfoReplicator(this, instanceInfo,
 					clientConfig.getInstanceInfoReplicationIntervalSeconds(), 2); // burstSize
 
@@ -1434,7 +1438,7 @@ public class DiscoveryClient implements EurekaClient {
 
 			boolean remoteRegionsModified = false;
 			// This makes sure that a dynamic change to remote regions to fetch is honored.
-			// ÕâÈ·±£ÁË¶ÔÔ¶³ÌÇøÓò½øĞĞ¶¯Ì¬¸ü¸ÄÒÔ»ñÈ¡Êı¾İ
+			// è¿™ç¡®ä¿äº†å¯¹è¿œç¨‹åŒºåŸŸè¿›è¡ŒåŠ¨æ€æ›´æ”¹ä»¥è·å–æ•°æ®
 			String latestRemoteRegions = clientConfig.fetchRegistryForRemoteRegions();
 			if (null != latestRemoteRegions) {
 				String currentRemoteRegions = remoteRegionsToFetch.get();
@@ -1455,12 +1459,13 @@ public class DiscoveryClient implements EurekaClient {
 					}
 				} else {
 					// Just refresh mapping to reflect any DNS/Property change
-					// Ö»ĞèË¢ĞÂÓ³ÉäÒÔ·´Ó³ÈÎºÎDNS/ÊôĞÔ¸ü¸Ä
+					// åªéœ€åˆ·æ–°æ˜ å°„ä»¥åæ˜ ä»»ä½•DNS/å±æ€§æ›´æ”¹
 					instanceRegionChecker.getAzToRegionMapper().refreshMapping();
 				}
 			}
 
-			// »ñÈ¡×¢²á±íĞÅÏ¢
+			// é‡ç‚¹éƒ¨åˆ†ï¼Œè·å–æ³¨å†Œè¡¨ä¿¡æ¯
+        	// é™¤éåœ¨åè°ƒeurekaæœåŠ¡å™¨å’Œå®¢æˆ·ç«¯æ³¨å†Œè¡¨ä¿¡æ¯æ–¹é¢å­˜åœ¨é—®é¢˜ï¼Œå¦åˆ™æ­¤æ–¹æ³•åªå°è¯•åœ¨ç¬¬ä¸€æ¬¡è·å–ä¹‹åè·å–å¢é‡
 			boolean success = fetchRegistry(remoteRegionsModified);
 			if (success) {
 				registrySize = localRegionApps.get().size();
