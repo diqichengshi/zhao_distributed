@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.zhaojuan</groupId>
-    <artifactId>netflix-eureka-core</artifactId>
+    <artifactId>eureka-core</artifactId>
     <version>1.7.2</version>
 
     <properties>
@@ -17,7 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>com.zhaojuan</groupId>
-            <artifactId>netflix-eureka-client</artifactId>
+            <artifactId>eureka-client</artifactId>
             <version>1.7.2</version>
         </dependency>
         <dependency>
