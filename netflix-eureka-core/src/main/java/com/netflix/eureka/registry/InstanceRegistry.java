@@ -27,10 +27,10 @@ public interface InstanceRegistry extends LeaseManager<InstanceInfo>, LookupServ
     void storeOverriddenStatusIfRequired(String appName, String id, InstanceStatus overriddenStatus);
 
     boolean statusUpdate(String appName, String id, InstanceStatus newStatus,
-                         String lastDirtyTimestamp, boolean isReplication);
+                        String lastDirtyTimestamp, boolean isReplication);
 
     boolean deleteStatusOverride(String appName, String id, InstanceStatus newStatus,
-                                 String lastDirtyTimestamp, boolean isReplication);
+                                String lastDirtyTimestamp, boolean isReplication);
 
     Map<String, InstanceStatus> overriddenInstanceStatusesSnapshot();
 

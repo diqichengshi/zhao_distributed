@@ -918,20 +918,13 @@ public class DiscoveryClient implements EurekaClient {
 			// applications
 			// 如果禁用了增量，或者这是第一次，则获取所有应用程序
 			Applications applications = getApplications();
-
+			
+			// Client application does not have latest library supporting del
 			if (clientConfig.shouldDisableDelta()
 					|| (!Strings.isNullOrEmpty(clientConfig.getRegistryRefreshSingleVipAddress()))
 					|| forceFullRegistryFetch || (applications == null)
-					|| (applications.getRegisteredApplications().size() == 0) || (applications.getVersion() == -1)) // Client
-																													// application
-																													// does
-																													// not
-																													// have
-																													// latest
-																													// library
-																													// supporting
-																													// delta
-			{
+					|| (applications.getRegisteredApplications().size() == 0) 
+					|| (applications.getVersion() == -1)) {
 				logger.info("Disable delta property : {}", clientConfig.shouldDisableDelta());
 				logger.info("Single vip registry refresh property : {}",
 						clientConfig.getRegistryRefreshSingleVipAddress());
@@ -940,12 +933,10 @@ public class DiscoveryClient implements EurekaClient {
 				logger.info("Registered Applications size is zero : {}",
 						(applications.getRegisteredApplications().size() == 0));
 				logger.info("Application version is -1: {}", (applications.getVersion() == -1));
-				//  第一次获取
-				// 从eureka服务器获取完整的注册表信息，并将其存储在本地
+				//  第一次获取，从eureka服务器获取完整的注册表信息，并将其存储在本地
 				getAndStoreFullRegistry();
 			} else {
-				//  非第一次获取
-				// 从eureka服务器获取delta注册表信息并更新它在当地
+				//  非第一次获取，从eureka服务器获取delta注册表信息并更新它在当地
 				getAndUpdateDelta(applications);
 			}
 			applications.setAppsHashCode(applications.getReconcileHashCode());
@@ -974,8 +965,8 @@ public class DiscoveryClient implements EurekaClient {
 	}
 
 	/**
-	 * Gets the full registry information from the eureka server and stores it
-	 * locally. ��eureka��������ȡ������ע�����Ϣ��������洢�ڱ���
+	 * Gets the full registry information from the eureka server and stores it locally
+	 * 根据缓存中保存的刷新数据更新远程状态
 	 */
 	private synchronized void updateInstanceRemoteStatus() {
 		// Determine this instance's status for this app and set to UNKNOWN if not found

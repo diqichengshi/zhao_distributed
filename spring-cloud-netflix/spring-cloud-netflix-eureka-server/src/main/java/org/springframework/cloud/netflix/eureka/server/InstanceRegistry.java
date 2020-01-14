@@ -137,6 +137,7 @@ public class InstanceRegistry extends PeerAwareInstanceRegistryImpl
 		log("register " + info.getAppName() + ", vip " + info.getVIPAddress()
 				+ ", leaseDuration " + leaseDuration + ", isReplication "
 				+ isReplication);
+		// 将该新服务注册的事件传播出去
 		publishEvent(new EurekaInstanceRegisteredEvent(this, info, leaseDuration,
 				isReplication));
 	}
