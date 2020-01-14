@@ -43,3 +43,9 @@ eureka-client/eureka-client.iml
 eureka-server/eureka-server.iml
 hystrix-core/hystrix-core.iml
 ribbon-core/ribbon-core.iml
+ribbon-loadbalancer/.classpath
+ribbon-loadbalancer/.project
+ribbon-loadbalancer/.settings/org.eclipse.jdt.apt.core.prefs
+ribbon-loadbalancer/.settings/org.eclipse.jdt.core.prefs
+ribbon-loadbalancer/.settings/org.eclipse.m2e.core.prefs
+/ribbon-loadbalancer/target
